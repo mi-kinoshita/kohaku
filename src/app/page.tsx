@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 
 export default function WaitingListPage() {
@@ -26,7 +27,8 @@ export default function WaitingListPage() {
       } else {
         setMessage(data.error || "Registration failed.");
       }
-    } catch (_error: any) {
+    } catch (_error) {
+      // ': any' を削除しました
       console.error("Waitlist registration error:", _error);
       setMessage("An error occurred. Please try again later.");
     }
@@ -37,14 +39,6 @@ export default function WaitingListPage() {
       <div className="w-full md:w-1/2 flex flex-col pt-0 px-8 pb-32 md:pt-0 md:px-16 md:pb-32 bg-white relative rounded-t-lg md:rounded-none -mt-10 md:mt-0 z-10 md:z-auto">
         <div className="max-w-md mx-auto md:mx-0">
           <div className="mt-0 mb-6">
-            {/* Image コンポーネントを削除したため、ロゴは表示されなくなります */}
-            {/* もしロゴを表示したい場合は、ロゴ用の div を別途用意し、Image コンポーネントを使用する必要があります */}
-            {/* <Image
-              src="/logoipsum-231.svg"
-              alt="Your Logo"
-              width={80}
-              height={80}
-            /> */}
             <h1 className="text-6xl md:text-5xl font-bold text-gray-800 leading-tight mb-4">
               kohaku
             </h1>
