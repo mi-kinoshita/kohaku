@@ -2,6 +2,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
+// Edge Runtime を使用することを明示
+export const runtime = 'edge';
+
 declare const WAITLIST_EMAILS: KVNamespace;
 
 export async function POST(request: NextRequest) {
@@ -16,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message: 'Successfully joined the waitlist!' }, { status: 200 });
 
-  } catch (_error) { // ': any' を削除しました。変数名も _error に変更。
+  } catch (_error) {
     console.error('Waitlist registration error:', _error);
     return NextResponse.json({ error: 'An internal server error occurred.' }, { status: 500 });
   }
