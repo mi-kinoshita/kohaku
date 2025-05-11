@@ -1,33 +1,29 @@
-// // app/api/waitlist/route.ts
+// app/api/waitlist/route.ts
 
-// import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-// // Cloudflare Workers KV の型定義 (開発環境用、デプロイ時は不要)
-// // declare const WAITLIST_EMAILS: KVNamespace;
+declare const WAITLIST_EMAILS: KVNamespace;
 
-// export async function POST(request: NextRequest) {
-//   try {
-//     const { email } = await request.json();
+export async function POST(request: NextRequest) {
+  try {
+    // 1. リクエストボディからメールアドレスを取得し、型アサーションを追加
+    const { email } = await request.json() as { email: string };
 
-//     if (!email) {
-//       return NextResponse.json({ error: 'メールアドレスが必要です。' }, { status: 400 });
-//     }
+    // 2. 基本的な入力検証
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      return NextResponse.json({ error: 'Valid email address is required.' }, { status: 400 });
+    }
 
-//     // メールアドレスの基本的な検証 (より厳密に行うのが望ましい)
-//     if (!email.includes('@')) {
-//          return NextResponse.json({ error: '無効なメールアドレス形式です。' }, { status: 400 });
-//     }
+    // Cloudflare Workers KV に保存
+    // 環境変数やBindingの設定が必要です (後述)
+    // KVNamespace WAITLIST_EMAILS は Cloudflare Pages の設定でBindingされます
+    await WAITLIST_EMAILS.put(email, JSON.stringify({ registeredAt: new Date().toISOString() }));
 
+    // 成功レスポンスを返す
+    return NextResponse.json({ message: 'Successfully joined the waitlist!' }, { status: 200 });
 
-//     // Cloudflare Workers KV に保存
-//     // 環境変数やBindingの設定が必要です (後述)
-//     // KVNamespace WAITLIST_EMAILS は Cloudflare Pages の設定でBindingされます
-//     await WAITLIST_EMAILS.put(email, JSON.stringify({ registeredAt: new Date().toISOString() }));
-
-//     return NextResponse.json({ message: '登録に成功しました！' }, { status: 200 });
-
-//   } catch (error) {
-//     console.error('Waitlist registration error:', error);
-//     return NextResponse.json({ error: 'サーバーエラーが発生しました。' }, { status: 500 });
-//   }
-// }
+  } catch (error: any) {
+    console.error('Waitlist registration error:', error);
+    return NextResponse.json({ error: 'An internal server error occurred.' }, { status: 500 });
+  }
+}

@@ -19,16 +19,19 @@ export default function WaitingListPage() {
         body: JSON.stringify({ email }),
       });
 
-      const data = await response.json();
+      // APIからのレスポンスデータの型を明示するために型アサーションを追加
+      const data = (await response.json()) as
+        | { message: string }
+        | { error: string };
 
       if (response.ok) {
         setMessage("Thank you for signing up!");
         setEmail("");
       } else {
-        setMessage(data.error || "Registration failed.");
+        // else ブロック内で data が { error: string } であることを明示するために型アサーションを追加
+        setMessage((data as { error: string }).error || "Registration failed.");
       }
     } catch (_error) {
-      // ': any' を削除しました
       console.error("Waitlist registration error:", _error);
       setMessage("An error occurred. Please try again later.");
     }
