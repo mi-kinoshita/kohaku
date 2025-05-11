@@ -4,10 +4,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'edge';
 
-// POST 関数が env オブジェクトを第2引数として受け取るように定義します。
-// Next.js のビルドシステムとの互換性のため、型は any とします。
+// POST 関数が env オブジェクトを第2引数として受け取るように定義し、
+// TypeScript のエラー回避のため、型を any に指定します。
 // ランタイムでは、この env オブジェクトに Binding されたリソースが含まれることを期待します。
-export async function POST(request: NextRequest, env: any) {
+export async function POST(request: NextRequest, env: any) { // <- env に : any を追加
   try {
     const { email } = await request.json() as { email: string };
 
@@ -15,11 +15,13 @@ export async function POST(request: NextRequest, env: any) {
       return NextResponse.json({ error: 'Valid email address is required.' }, { status: 400 });
     }
 
-    // env オブジェクト経由で WAITLIST_EMAILS にアクセスします。
-    // ここで env.WAITLIST_EMAILS がランタイムで定義されていることを期待します。
-    await env.WAITLIST_EMAILS.put(email, JSON.stringify({ registeredAt: new Date().toISOString() }));
+    // env オブジェクトが { WAITLIST_EMAILS: KVNamespace } の構造を持つと
+    // TypeScript にアサーションしてアクセスします。
+    // env が any 型なので、TypeScriptはここでのアクセスを許可します。
+    // ランタイムで WAITLIST_EMAILS が存在するかは Cloudflare の Binding 設定に依存します。
+    await (env as { WAITLIST_EMAILS: KVNamespace }).WAITLIST_EMAILS.put(email, JSON.stringify({ registeredAt: new Date().toISOString() }));
 
-    return NextResponse.json({ message: 'Successfully joined the waitlist!' }, { status: 200 });
+    return NextResponse.json({ message: 'Successfully joined the waitlist!' }, { status: 500 });
 
   } catch (_error) {
     // エラーログに env オブジェクトの内容を含めて、デバッグ情報を増やします
