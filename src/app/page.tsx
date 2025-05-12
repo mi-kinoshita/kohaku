@@ -1,6 +1,42 @@
 "use client";
 
+import { NextRequest, NextResponse } from "next/server";
+import { useState } from "react";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
 export default function WaitingListPage() {
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [isAlertSuccess, setIsAlertSuccess] = useState(true);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const emailInput = form.elements.namedItem("email") as HTMLInputElement;
+    const email = emailInput.value;
+
+    const gasWebAppUrl =
+      "https://script.google.com/macros/s/AKfycbx6hI2LU8QyA8zb7PGYGOdOwoqAudZqsm9rY1wc8k-ZFZwMEUHFDnWZIf1BKIaUPxKX/exec";
+
+    setAlertMessage(null);
+
+    try {
+      const response = await fetch(gasWebAppUrl, {
+        method: "POST",
+        body: new URLSearchParams({ email: email }),
+        mode: "no-cors",
+      });
+
+      setAlertMessage("Thank you for joining the waitlist!");
+      setIsAlertSuccess(true);
+      form.reset();
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setAlertMessage("An error occurred. Please try again.");
+      setIsAlertSuccess(false);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <header className="w-full bg-white shadow-md">
@@ -41,6 +77,7 @@ export default function WaitingListPage() {
               </p>
 
               <form
+                onSubmit={handleSubmit}
                 id="waitlist-form"
                 className="flex flex-col sm:flex-row gap-4 mb-4"
               >
@@ -59,7 +96,29 @@ export default function WaitingListPage() {
                 </button>
               </form>
 
-              {/* <div className="flex items-center pl-2 text-gray-600 text-sm">
+              {/* Alert component container */}
+              {/* Always render this div to reserve space */}
+              <div className="mt-4 min-h-[60px]">
+                {" "}
+                {/* Added min-h to reserve minimum space */}
+                {/* Alert component is conditionally rendered inside */}
+                {alertMessage && (
+                  <Alert
+                    className={`${
+                      isAlertSuccess
+                        ? "border-green-500 text-green-700"
+                        : "border-red-500 text-red-700"
+                    }`}
+                  >
+                    <AlertTitle>
+                      {isAlertSuccess ? "Success" : "Error"}
+                    </AlertTitle>
+                    <AlertDescription>{alertMessage}</AlertDescription>
+                  </Alert>
+                )}
+              </div>
+
+              {/* <div className="flex items-center pl-2 text-gray-600 text-sm mt-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5 mr-1 text-yellow-500"
@@ -83,32 +142,6 @@ export default function WaitingListPage() {
           </footer>
         </section>
       </main>
-
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            document.getElementById("waitlist-form").addEventListener("submit", function (e) {
-              e.preventDefault();
-              const email = e.target.email.value;
-              fetch("https://script.google.com/macros/s/AKfycbx6hI2LU8QyA8zb7PGYGOdOwoqAudZqsm9rY1wc8k-ZFZwMEUHFDnWZIf1BKIaUPxKX/exec", {
-                method: "POST",
-                body: new URLSearchParams({ email: email })
-              })
-              .then(response => {
-                  if (response.ok) {
-                      alert("Thank you for joining the waitlist!");
-                  } else {
-                      alert("Failed to join the waitlist. Please try again.");
-                  }
-              })
-              .catch(error => {
-                  console.error('Fetch error:', error);
-                  alert("An error occurred.");
-              });
-            });
-          `,
-        }}
-      />
     </div>
   );
 }
