@@ -1,8 +1,5 @@
 "use client";
-
-import { NextRequest, NextResponse } from "next/server";
 import { useState } from "react";
-
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function WaitingListPage() {
@@ -21,7 +18,7 @@ export default function WaitingListPage() {
     setAlertMessage(null);
 
     try {
-      const response = await fetch(gasWebAppUrl, {
+      await fetch(gasWebAppUrl, {
         method: "POST",
         body: new URLSearchParams({ email: email }),
         mode: "no-cors",
@@ -96,12 +93,7 @@ export default function WaitingListPage() {
                 </button>
               </form>
 
-              {/* Alert component container */}
-              {/* Always render this div to reserve space */}
               <div className="mt-4 min-h-[60px]">
-                {" "}
-                {/* Added min-h to reserve minimum space */}
-                {/* Alert component is conditionally rendered inside */}
                 {alertMessage && (
                   <Alert
                     className={`${
