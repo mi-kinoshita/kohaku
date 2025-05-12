@@ -1,45 +1,11 @@
 "use client";
 
-import { useState } from "react";
-
 export default function WaitingListPage() {
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Email submitted:", email);
-    setMessage("Submitting...");
-    try {
-      const response = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = (await response.json()) as
-        | { message: string }
-        | { error: string };
-
-      if (response.ok) {
-        setMessage("Thank you for signing up!");
-        setEmail("");
-      } else {
-        setMessage((data as { error: string }).error || "Registration failed.");
-      }
-    } catch (_error) {
-      console.error("Waitlist registration error:", _error);
-      setMessage("An error occurred. Please try again later.");
-    }
-  };
-
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      <header className="w-full bg-white">
-        <nav className="flex justify-between items-center px-4 py-2 md:px-8 md:py-2">
-          <div className="font-bold text-3xl text-gray-800">kohaku</div>
+      <header className="w-full bg-white shadow-md">
+        <nav className="flex justify-between items-center px-4 py-2 md:px-8 md:py-4">
+          <div className="font-bold text-lg text-gray-800">kohaku</div>
         </nav>
       </header>
 
@@ -73,26 +39,27 @@ export default function WaitingListPage() {
                 <br />
                 Join the waitlist for early access and updates.
               </p>
+
               <form
-                onSubmit={handleSubmit}
+                id="waitlist-form"
                 className="flex flex-col sm:flex-row gap-4 mb-4"
               >
                 <input
                   type="email"
-                  placeholder="name@domain.com"
-                  className="flex-grow px-0 py-2 border-b border-gray-500 bg-transparent focus:outline-none focus:border-blue-600"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  name="email"
+                  placeholder="Enter your email"
                   required
+                  className="flex-grow px-0 py-2 border-b border-gray-500 bg-transparent focus:outline-none focus:border-blue-600"
                 />
                 <button
                   type="submit"
                   className="bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black"
                 >
-                  Join now
+                  Join the Waitlist
                 </button>
               </form>
-              <div className="flex items-center pl-2 text-gray-600 text-sm">
+
+              {/* <div className="flex items-center pl-2 text-gray-600 text-sm">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5 mr-1 text-yellow-500"
@@ -107,17 +74,41 @@ export default function WaitingListPage() {
                 </svg>
                 <span className="font-semibold text-yellow-600 mr-1">100+</span>
                 makers have already joined
-              </div>
-              {message && <p className="mt-4 text-center text-sm">{message}</p>}
+              </div> */}
             </div>
           </div>
 
-          {/* コピーライトの配置を修正 */}
           <footer className="w-full text-left text-gray-400 text-sm py-4 px-4 max-w-md mx-auto md:mx-0">
             ©2025 Mia Design Studio All rights reserved.
           </footer>
         </section>
       </main>
+
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            document.getElementById("waitlist-form").addEventListener("submit", function (e) {
+              e.preventDefault();
+              const email = e.target.email.value;
+              fetch("https://script.google.com/macros/s/AKfycbx6hI2LU8QyA8zb7PGYGOdOwoqAudZqsm9rY1wc8k-ZFZwMEUHFDnWZIf1BKIaUPxKX/exec", {
+                method: "POST",
+                body: new URLSearchParams({ email: email })
+              })
+              .then(response => {
+                  if (response.ok) {
+                      alert("Thank you for joining the waitlist!");
+                  } else {
+                      alert("Failed to join the waitlist. Please try again.");
+                  }
+              })
+              .catch(error => {
+                  console.error('Fetch error:', error);
+                  alert("An error occurred.");
+              });
+            });
+          `,
+        }}
+      />
     </div>
   );
 }
