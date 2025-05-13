@@ -5,6 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 export default function WaitingListPage() {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [isAlertSuccess, setIsAlertSuccess] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // ローディング状態を追加
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -13,17 +14,19 @@ export default function WaitingListPage() {
     const email = emailInput.value;
 
     const gasWebAppUrl =
-      "https://script.google.com/macros/s/AKfycbx6hI2LU8QyA8zb7PGYGOdOwoqAudZqsm9rY1wc8k-ZFZwMEUHFDnWZIf1BKIaUPxKX/exec";
+      "https://script.google.com/macros/s/AKfycbx6hI2LU8QyA8zb7PGYGOdOwoqAudZqsm9rY1wc8k-ZFZwMEUHFDnWZIf1BKIaUPxKX/exec"; // このURLは公開されるため注意
 
-    setAlertMessage(null);
+    setAlertMessage(null); // 以前のメッセージをクリア
+    setIsLoading(true); // 通信開始時にローディング開始
 
     try {
       await fetch(gasWebAppUrl, {
         method: "POST",
         body: new URLSearchParams({ email: email }),
-        mode: "no-cors",
+        mode: "no-cors", // CORSエラーを回避するため。ただしレスポンスの成功/失敗を正確に判定できない点に注意
       });
 
+      // no-corsモードの場合、ここでは成功したと仮定するしかない
       setAlertMessage("Thank you for joining the waitlist!");
       setIsAlertSuccess(true);
       form.reset();
@@ -31,6 +34,8 @@ export default function WaitingListPage() {
       console.error("Fetch error:", error);
       setAlertMessage("An error occurred. Please try again.");
       setIsAlertSuccess(false);
+    } finally {
+      setIsLoading(false); // 通信終了時にローディング終了 (成功・失敗問わず)
     }
   };
 
@@ -83,13 +88,38 @@ export default function WaitingListPage() {
                   name="email"
                   placeholder="Enter your email"
                   required
-                  className="flex-grow px-0 py-2 border-b border-gray-500 bg-transparent focus:outline-none focus:border-blue-600"
+                  disabled={isLoading} // ローディング中は無効化
+                  className="flex-grow px-0 py-2 border-b border-gray-500 bg-transparent focus:outline-none focus:border-blue-600 disabled:opacity-50 disabled:cursor-not-allowed" // ローディング中のスタイルを追加
                 />
                 <button
                   type="submit"
-                  className="bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black"
+                  disabled={isLoading} // ローディング中は無効化
+                  className="bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center" // ローディング中のスタイルとflexを追加
                 >
-                  Join the Waitlist
+                  {isLoading ? (
+                    // ローディング中のアイコン
+                    <svg
+                      className="animate-spin h-5 w-5 text-white mr-2"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l2-2.647z"
+                      ></path>
+                    </svg>
+                  ) : null}
+                  Join the Waitlist {/* テキストはローディング中でも表示 */}
                 </button>
               </form>
 
@@ -109,23 +139,6 @@ export default function WaitingListPage() {
                   </Alert>
                 )}
               </div>
-
-              {/* <div className="flex items-center pl-2 text-gray-600 text-sm mt-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-1 text-yellow-500"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="font-semibold text-yellow-600 mr-1">100+</span>
-                makers have already joined
-              </div> */}
             </div>
           </div>
 
