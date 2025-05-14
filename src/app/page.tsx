@@ -1,11 +1,13 @@
 "use client";
+
 import { useState } from "react";
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function WaitingListPage() {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [isAlertSuccess, setIsAlertSuccess] = useState(true);
-  const [isLoading, setIsLoading] = useState(false); // ローディング状態を追加
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,19 +16,18 @@ export default function WaitingListPage() {
     const email = emailInput.value;
 
     const gasWebAppUrl =
-      "https://script.google.com/macros/s/AKfycbx6hI2LU8QyA8zb7PGYGOdOwoqAudZqsm9rY1wc8k-ZFZwMEUHFDnWZIf1BKIaUPxKX/exec"; // このURLは公開されるため注意
+      "https://script.google.com/macros/s/AKfycbx6hI2LU8QyA8zb7PGYGOdOwoqAudZqsm9rY1wc8k-ZFZwMEUHFDnWZIf1BKIaUPxKX/exec";
 
-    setAlertMessage(null); // 以前のメッセージをクリア
-    setIsLoading(true); // 通信開始時にローディング開始
+    setAlertMessage(null);
+    setIsLoading(true);
 
     try {
       await fetch(gasWebAppUrl, {
         method: "POST",
         body: new URLSearchParams({ email: email }),
-        mode: "no-cors", // CORSエラーを回避するため。ただしレスポンスの成功/失敗を正確に判定できない点に注意
+        mode: "no-cors",
       });
 
-      // no-corsモードの場合、ここでは成功したと仮定するしかない
       setAlertMessage("Thank you for joining the waitlist!");
       setIsAlertSuccess(true);
       form.reset();
@@ -35,7 +36,7 @@ export default function WaitingListPage() {
       setAlertMessage("An error occurred. Please try again.");
       setIsAlertSuccess(false);
     } finally {
-      setIsLoading(false); // 通信終了時にローディング終了 (成功・失敗問わず)
+      setIsLoading(false);
     }
   };
 
@@ -88,16 +89,15 @@ export default function WaitingListPage() {
                   name="email"
                   placeholder="Enter your email"
                   required
-                  disabled={isLoading} // ローディング中は無効化
-                  className="flex-grow px-0 py-2 border-b border-gray-500 bg-transparent focus:outline-none focus:border-blue-600 disabled:opacity-50 disabled:cursor-not-allowed" // ローディング中のスタイルを追加
+                  disabled={isLoading}
+                  className="flex-grow px-0 py-2 border-b border-gray-500 bg-transparent focus:outline-none focus:border-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <button
                   type="submit"
-                  disabled={isLoading} // ローディング中は無効化
-                  className="bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center" // ローディング中のスタイルとflexを追加
+                  disabled={isLoading}
+                  className="bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                   {isLoading ? (
-                    // ローディング中のアイコン
                     <svg
                       className="animate-spin h-5 w-5 text-white mr-2"
                       xmlns="http://www.w3.org/2000/svg"
@@ -119,14 +119,14 @@ export default function WaitingListPage() {
                       ></path>
                     </svg>
                   ) : null}
-                  Join the Waitlist {/* テキストはローディング中でも表示 */}
+                  Join the Waitlist
                 </button>
               </form>
 
               <div className="mt-4 min-h-[60px]">
                 {alertMessage && (
                   <Alert
-                    className={`${
+                    className={`mb-4 ${
                       isAlertSuccess
                         ? "border-green-500 text-green-700"
                         : "border-red-500 text-red-700"
@@ -139,11 +139,36 @@ export default function WaitingListPage() {
                   </Alert>
                 )}
               </div>
+
+              {/* <div className="flex items-center pl-2 text-gray-600 text-sm mt-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-1 text-yellow-500"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="font-semibold text-yellow-600 mr-1">100+</span>
+                makers have already joined
+              </div> */}
             </div>
           </div>
 
-          <footer className="w-full text-left text-gray-400 text-sm py-4 px-4 max-w-md mx-auto md:mx-0">
-            ©2025 Mia Design Studio All rights reserved.
+          <footer className="w-full text-left text-gray-400 text-sm py-4 px-4 max-w-md mx-auto md:mx-0 flex flex-col sm:flex-row sm:justify-between sm:items-center">
+            <a
+              href="https://www.freeprivacypolicy.com/live/97bc1005-fb1c-4dd2-9370-6f573c7283ac"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:underline mt-1 sm:mt-0"
+            >
+              Privacy Policy
+            </a>
+            <span>©2025 Mia Design Studio All rights reserved.</span>
           </footer>
         </section>
       </main>
